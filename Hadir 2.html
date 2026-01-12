@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generator Daftar Hadir Guru F4 Landscape</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        /* PENGATURAN DASAR & PENYELARASAN VISUAL (WEB & CETAK) */
+        :root {
+            --row-height-pegawai: 26px;
+            --row-height-murid: 20px;
+            --font-main: 10pt;
+            --font-main-murid: 9.5pt;
+            --font-name: 11pt;
+        }
+
+        @media print {
+            @page {
+                size: 330mm 215mm;
+                margin: 8mm 10mm 8mm 10mm;
+            }
+            
+            html, body {
+                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            .no-print, .modal-overlay {
+                display: none !important;
+            }
+
+            .f4-paper {
+                width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-shadow: none !important;
+                display: block !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+            }
+
+            table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: fixed !important;
+                border: 1pt solid black !important;
+                margin-right: 2px !important; 
+            }
+
+            th, td {
+                border: 0.75pt solid black !important;
+                color: black !important;
+            }
+        }
+
+        /* Tampilan Layar */
+        body {
+            background-color: #f3f4f6;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .f4-paper {
+            width: 330mm;
+            min-height: 215mm;
+            padding: 15mm;
+            margin: 20px auto;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            position: relative;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        table { 
+            border-collapse: collapse; 
+            width: 100%; 
+            border: 1px solid black; 
+            table-layout: fixed;
+            box-sizing: border-box;
+        }
+
+        th, td { 
+            border: 1px solid black; 
+            text-align: center; 
+            vertical-align: middle; 
+            font-family: 'Times New Roman', serif;
+            box-sizing: border-box;
+        }
+
+        .pegawai-mode th, .pegawai-mode td { 
+            font-size: var(--font-main) !important; 
+            height: var(--row-height-pegawai) !important; 
+            padding: 0 2px !important;
+        }
+
+        .murid-mode th, .murid-mode td { 
+            font-size: var(--font-main-murid) !important; 
+            height: var(--row-height-murid) !important; 
+            padding: 0 1px !important;
+        }
+
+        .murid-mode td:nth-child(2), 
+        .pegawai-mode td:nth-child(2) { 
+            font-weight: normal;
+        }
+
+        .holiday { background-color: #f3f4f6 !important; }
+        .sunday { background-color: #fee2e2 !important; }
+
+        .header-text h1 { font-size: 16pt; font-weight: bold; margin: 0; line-height: 1.2; text-transform: uppercase; }
+        .header-text p { font-size: 12pt; font-weight: bold; margin: 0 0 12px 0; line-height: 1.2; text-transform: uppercase; }
+
+        .vertical-text-wrapper {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            transform: rotate(180deg);
+            white-space: nowrap;
+            font-weight: bold;
+            font-size: 7.5pt;
+            letter-spacing: 0.2px;
+            text-transform: uppercase;
+        }
+
+        .shrink-to-fit {
+            white-space: nowrap;
+            overflow: hidden;
+            display: inline-block;
+            vertical-align: middle;
+            max-width: 100%;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            display: none; align-items: center; justify-content: center;
+            z-index: 1000; backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            background: white; border-radius: 24px;
+            width: 95%; max-width: 800px; max-height: 90vh; overflow: hidden;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            display: flex; flex-direction: column;
+        }
+
+        .menu-pill-btn {
+            display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px;
+            padding: 6px 12px; background-color: white; border: 1px solid #e5e7eb; border-radius: 8px;
+            font-size: 12px; font-weight: 700; color: #374151; transition: all 0.2s;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05); white-space: nowrap;
+        }
+        .menu-pill-btn:hover { background-color: #f9fafb; border-color: #d1d5db; }
+
+        .menu-input-group {
+            display: flex; flex-direction: row; align-items: center; gap: 4px;
+            background-color: white; border: 1px solid #e5e7eb; border-radius: 8px;
+            padding: 4px 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .menu-input-field { outline: none; font-size: 12px; font-weight: 700; background: transparent; color: #374151; border: none; }
+
+        .modal-input-field {
+            @apply w-full outline-none focus:ring-2 focus:ring-blue-500 transition-all border border-slate-200 p-2.5 rounded-xl text-sm bg-slate-50 focus:bg-white;
+        }
+
+        .mode-switch-pill { @apply flex bg-slate-200 p-1 rounded-full shadow-inner border border-slate-300 items-center; }
+        .switch-item-btn { @apply px-8 py-2 rounded-full text-[10px] tracking-[2px] font-black transition-all duration-300 ease-in-out uppercase flex items-center justify-center h-9; }
+        .active-pegawai { @apply bg-blue-600 text-white shadow-lg transform scale-[1.02] border border-blue-400; }
+        .active-murid { @apply bg-emerald-600 text-white shadow-lg transform scale-[1.02] border border-emerald-400; }
+        .item-inactive { @apply text-slate-500 hover:text-slate-800; }
+
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .btn-icon-sm { @apply p-1.5 rounded-lg hover:bg-gray-100 transition-all text-gray-500 hover:text-gray-900 border border-transparent hover:border-gray-200; }
+        .btn-action { @apply px-4 py-1.5 rounded-lg text-xs font-bold border transition-all; }
+
+        .signature-section { page-break-inside: avoid !important; margin-top: 5mm !important; }
+    </style>
+</head>
+<body class="p-4">
+
+    <!-- Menu Utama -->
+    <div class="no-print max-w-[1600px] mx-auto mb-6">
+        <div class="bg-white p-3 rounded-3xl shadow-xl border border-gray-100 flex items-center gap-3 overflow-x-auto scrollbar-hide">
+            
+            <div class="mode-switch-pill flex-shrink-0">
+                <button onclick="setMode('pegawai')" id="btnModePegawai" class="switch-item-btn">Pegawai</button>
+                <button onclick="setMode('murid')" id="btnModeMurid" class="switch-item-btn">Murid</button>
+            </div>
+
+            <div class="h-8 w-px bg-gray-200 flex-shrink-0"></div>
+
+            <button onclick="openModal('modalSettings')" class="menu-pill-btn bg-blue-50/50 text-blue-700 border-blue-100 flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>Sekolah & Pejabat</span>
+            </button>
+
+            <div class="menu-input-group flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                <select id="inputBulan" class="menu-input-field w-24" onchange="handleInput()">
+                    <option value="0">Januari</option><option value="1">Februari</option>
+                    <option value="2">Maret</option><option value="3">April</option>
+                    <option value="4">Mei</option><option value="5">Juni</option>
+                    <option value="6">Juli</option><option value="7">Agustus</option>
+                    <option value="8">September</option><option value="9">Oktober</option>
+                    <option value="10">November</option><option value="11">Desember</option>
+                </select>
+            </div>
+
+            <div class="menu-input-group flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                <input type="number" id="inputTahun" class="menu-input-field w-16 text-center" oninput="handleInput()">
+            </div>
+
+            <button onclick="openModal('modalLibur')" class="menu-pill-btn flex-shrink-0 text-red-600">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                <span>Hari Libur</span>
+            </button>
+
+            <button onclick="openDataModal('pegawai')" id="btnDbPegawai" class="menu-pill-btn flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <span>Database Pegawai</span>
+            </button>
+            <button onclick="openDataModal('murid')" id="btnDbMurid" class="hidden menu-pill-btn flex-shrink-0 text-emerald-700">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                <span>Database Murid</span>
+            </button>
+
+            <div id="menuKelasGroup" class="hidden menu-input-group flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+                <select id="inputKelas" class="menu-input-field w-32" onchange="handleInput()">
+                    <option value="">--Pilih Kelas--</option>
+                    <option value="I">I</option><option value="II">II</option>
+                    <option value="III">III</option><option value="IV">IV</option>
+                    <option value="V">V</option><option value="VI">VI</option>
+                </select>
+            </div>
+
+            <div id="menuRombelGroup" class="hidden menu-input-group flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/></svg>
+                <select id="inputRombel" class="menu-input-field w-28" onchange="handleInput()">
+                    <option value="">--Rombel--</option>
+                    <option value="Hanya Satu">Hanya Satu</option>
+                    <option value="A">A</option><option value="B">B</option>
+                    <option value="C">C</option><option value="D">D</option>
+                    <option value="E">E</option><option value="F">F</option>
+                </select>
+            </div>
+
+            <div class="flex-grow"></div>
+
+            <div class="flex flex-row gap-2 flex-shrink-0">
+                <button onclick="backupData()" class="menu-pill-btn border-emerald-200 bg-emerald-50 text-emerald-700" title="Backup">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                </button>
+                <button onclick="document.getElementById('restoreInput').click()" class="menu-pill-btn border-amber-200 bg-amber-50 text-amber-700" title="Restore">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                </button>
+                <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="restoreData(event)">
+                <button onclick="printWithShrink()" class="menu-pill-btn bg-gray-800 text-white hover:bg-black" title="Cetak F4">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Area Dokumen -->
+    <div id="printableArea" class="f4-paper print-container pegawai-mode">
+        <div class="header-text text-center">
+            <h1 id="displayHeaderJudul">DAFTAR HADIR MURID</h1>
+            <p id="displayPeriode">BULAN JANUARI TAHUN 2024</p>
+        </div>
+
+        <div class="w-full">
+            <table id="tableAbsensi">
+                <colgroup id="tableColgroup"></colgroup>
+                <thead id="tableHeader"></thead>
+                <tbody id="tableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="signature-section mt-6 w-full" style="font-size: 11pt;">
+            <div class="flex w-full items-start justify-between">
+                <div id="signLeft" class="hidden w-[240px] text-left flex flex-col ml-40">
+                    <div class="h-4"><p id="labelLeftTop" class="m-0 p-0 leading-tight">Mengetahui:</p></div>
+                    <div class="h-4"><p id="labelLeftBottom" class="m-0 p-0 leading-tight">Kepala Sekolah,</p></div>
+                    <div class="h-14"></div>
+                    <div class="h-4"><p class="font-bold m-0 p-0 leading-none" id="displayNamaLeft"></p></div>
+                    <div class="h-4"><p class="m-0 p-0 leading-none" id="displayNIPLeftLine">NIP. <span id="displayNIPLeft"></span></p></div>
+                </div>
+
+                <div id="footerMurid" class="hidden flex flex-col items-center justify-center mr-14">
+                    <div class="border border-black p-0 text-center w-40 bg-white shadow-sm overflow-hidden">
+                        <div class="bg-gray-100 border-b border-black py-1 px-1">
+                            <p class="text-[8.5pt] font-bold uppercase leading-tight">Prosentase Absensi<br>Bulan Ini</p>
+                        </div>
+                        <div class="py-2 h-14 flex items-center justify-center gap-1">
+                             <div class="w-16 border-b border-dotted border-black h-8"></div>
+                             <span class="font-bold text-[14pt]">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="catatanPegawai" class="w-[45%]">
+                    <p class="font-bold mb-1" style="margin-left: 40px;">Catatan Khusus:</p>
+                    <div class="h-16 w-full mb-2"></div> 
+                </div>
+
+                <div id="signRight" class="w-[240px] text-left flex flex-col">
+                    <div class="h-4"><p id="displayTglTtd" class="m-0 p-0 leading-tight"></p></div>
+                    <div class="h-4"><p id="labelRight" class="m-0 p-0 leading-tight"></p></div>
+                    <div class="h-14"></div>
+                    <div class="h-4"><p class="font-bold m-0 p-0 leading-none" id="displayNamaRight"></p></div>
+                    <div class="h-4"><p class="m-0 p-0 leading-none" id="displayNIPRightLine">NIP. <span id="displayNIPRight"></span></p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DATABASE -->
+    <div id="modalGuru" class="modal-overlay no-print" onclick="closeModal('modalGuru')">
+        <div class="modal-content !max-w-4xl" onclick="event.stopPropagation()">
+            <div class="p-6 border-b bg-slate-50 flex flex-wrap justify-between items-center gap-4">
+                <h3 id="modalDbTitle" class="text-lg font-black text-slate-800 uppercase tracking-tight">DATABASE</h3>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="exportToExcel()" class="btn-action bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100">Ekspor Excel</button>
+                    <label class="btn-action bg-amber-50 text-amber-700 border-amber-200 cursor-pointer hover:bg-amber-100">Impor Excel <input type="file" id="importExcelInput" accept=".xlsx, .xls" class="hidden" onchange="importExcel(event)"></label>
+                    <button onclick="clearAllData()" class="btn-action bg-red-50 text-red-700 border-red-200 hover:bg-red-100">Kosongkan</button>
+                </div>
+            </div>
+            <div id="staffTableContainer" class="p-6 overflow-y-auto max-h-[60vh]">
+                <table class="w-full text-left border-collapse mb-4 border">
+                    <thead id="dataTableHeader"></thead>
+                    <tbody id="dataTableBody"></tbody>
+                </table>
+                <button onclick="addDataRow()" class="w-full py-3 bg-slate-50 border-2 border-dashed border-slate-300 rounded-2xl font-bold hover:bg-slate-100 transition-all text-slate-500 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Tambah Baris Baru
+                </button>
+            </div>
+            <div class="p-6 border-t bg-slate-50">
+                <button onclick="closeModal('modalGuru')" class="w-full py-3 bg-indigo-600 text-white rounded-2xl font-black shadow-lg uppercase tracking-wider text-xs">Selesai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL SETTINGS (REDESIGNED) -->
+    <div id="modalSettings" class="modal-overlay no-print" onclick="closeModal('modalSettings')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="p-6 bg-blue-600 text-white flex justify-between items-center">
+                <div>
+                    <h3 class="text-xl font-black uppercase tracking-tight">Pengaturan Identitas</h3>
+                    <p class="text-blue-100 text-xs mt-1">Konfigurasi Nama Sekolah dan Pejabat Penandatangan</p>
+                </div>
+                <button onclick="closeModal('modalSettings')" class="p-2 hover:bg-blue-500 rounded-full transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <div class="p-8 space-y-8 overflow-y-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                            </div>
+                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Data Sekolah</span>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Nama Satuan Pendidikan</label>
+                            <input type="text" id="inputSekolah" class="modal-input-field" oninput="handleInput()" placeholder="SDN PERDANA 1">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Kota/Lokasi TTD</label>
+                            <input type="text" id="inputKota" class="modal-input-field" oninput="handleInput()" placeholder="Jakarta">
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-2 mb-2">
+                            <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                            </div>
+                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Kepala Sekolah</span>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Nama Lengkap & Gelar</label>
+                            <input type="text" id="inputKepsek" class="modal-input-field" oninput="handleInput()" placeholder="Nama Kepala Sekolah">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">NIP Kepala Sekolah</label>
+                            <input type="text" id="inputNIP" class="modal-input-field" oninput="handleInput()" placeholder="NIP">
+                        </div>
+                    </div>
+                </div>
+                <div id="modalWaliGroup" class="hidden p-6 bg-emerald-50 rounded-3xl border border-emerald-100 space-y-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        </div>
+                        <span class="font-bold text-emerald-800 uppercase text-sm tracking-wide">Guru / Wali Kelas</span>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-emerald-600/60 uppercase ml-1">Nama Guru/Wali Kelas</label>
+                            <input type="text" id="inputWali" class="modal-input-field !bg-white border-emerald-100 focus:ring-emerald-500" oninput="handleInput()" placeholder="Nama Guru">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-emerald-600/60 uppercase ml-1">NIP Guru/Wali Kelas</label>
+                            <input type="text" id="inputNIPWali" class="modal-input-field !bg-white border-emerald-100 focus:ring-emerald-500" oninput="handleInput()" placeholder="NIP Guru">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="p-6 bg-slate-50 border-t flex gap-3">
+                <button onclick="closeModal('modalSettings')" class="flex-1 py-3.5 bg-slate-800 text-white rounded-2xl font-black shadow-lg uppercase tracking-[2px] text-xs hover:bg-black transition-all">Simpan & Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LIBUR -->
+    <div id="modalLibur" class="modal-overlay no-print" onclick="closeModal('modalLibur')">
+        <div class="modal-content !max-w-3xl" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center p-6 border-b bg-slate-50">
+                <h3 class="text-lg font-bold text-slate-800 uppercase flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-red-600"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
+                    Master Hari Libur Tahunan
+                </h3>
+                <div class="flex gap-2">
+                    <button onclick="exportHolidaysToExcel()" class="btn-icon-sm" title="Ekspor Libur ke Excel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+                    </button>
+                    <button onclick="document.getElementById('importHolidayInput').click()" class="btn-icon-sm" title="Impor Libur dari Excel">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                    </button>
+                    <input type="file" id="importHolidayInput" class="hidden" accept=".xlsx, .xls" onchange="importHolidaysExcel(event)">
+                </div>
+            </div>
+            <div id="holidayTableContainer" class="p-6 overflow-y-auto">
+                <table class="w-full text-left border-collapse mb-4 border">
+                    <thead>
+                        <tr class="bg-gray-100 text-[11px] uppercase font-bold text-gray-600">
+                            <th class="p-2 border w-40">Bulan</th>
+                            <th class="p-2 border w-32">Tanggal (Angka)</th>
+                            <th class="p-2 border">Keterangan Hari Libur</th>
+                            <th class="p-2 border w-12 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="holidayInputBody"></tbody>
+                </table>
+                <button onclick="addHolidayRow()" class="w-full py-3 bg-gray-50 border-2 border-dashed border-slate-300 rounded-2xl font-bold hover:bg-slate-100 transition-all text-slate-500 flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    Tambah Baris Libur
+                </button>
+            </div>
+            <div class="p-6 bg-slate-50 border-t">
+                <button onclick="closeModal('modalLibur')" class="w-full py-3 bg-red-600 text-white rounded-2xl font-bold shadow-lg uppercase tracking-wider hover:bg-red-700 transition-all">Simpan Perubahan</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let staffData = [];
+        let studentData = [];
+        let holidayData = [];
+        let currentMode = 'pegawai';
+        let currentDbManage = 'pegawai';
+        const STORAGE_KEY = 'absensi_f4_vSUPREME_FINAL_V12_LOCKED_FIXED_V4_MASTER';
+
+        const kelasOptions = ["I", "II", "III", "IV", "V", "VI"];
+        const rombelOptions = ["Hanya Satu", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
+        const bNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+        function getTimestamp(format = "standard") {
+            const now = new Date();
+            const y = now.getFullYear();
+            const m = String(now.getMonth()+1).padStart(2,'0');
+            const d = String(now.getDate()).padStart(2,'0');
+            const hh = String(now.getHours()).padStart(2,'0');
+            const mm = String(now.getMinutes()).padStart(2,'0');
+            if (format === "backup") return `${y}${m}${d} ${hh}.${mm}`;
+            return `${y}${m}${d}_${hh}${mm}`;
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            updateUIByMode();
+            generateTable();
+            saveToLocalStorage();
+        }
+
+        function updateUIByMode() {
+            const isMurid = currentMode === 'murid';
+            const area = document.getElementById('printableArea');
+            area.className = `f4-paper print-container ${isMurid ? 'murid-mode' : 'pegawai-mode'}`;
+            document.getElementById('btnModePegawai').className = isMurid ? "switch-item-btn item-inactive" : "switch-item-btn active-pegawai";
+            document.getElementById('btnModeMurid').className = isMurid ? "switch-item-btn active-murid" : "switch-item-btn item-inactive";
+            document.getElementById('btnDbPegawai').classList.toggle('hidden', isMurid);
+            document.getElementById('btnDbMurid').classList.toggle('hidden', !isMurid);
+            document.getElementById('menuKelasGroup').classList.toggle('hidden', !isMurid);
+            document.getElementById('menuRombelGroup').classList.toggle('hidden', !isMurid);
+            document.getElementById('footerMurid').classList.toggle('hidden', !isMurid);
+            document.getElementById('catatanPegawai').classList.toggle('hidden', isMurid);
+            document.getElementById('signLeft').classList.toggle('hidden', !isMurid);
+            
+            // Perbarui grup modal juga agar konsisten
+            document.getElementById('modalWaliGroup').classList.toggle('hidden', !isMurid);
+        }
+
+        function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id === 'modalLibur') renderHolidayInputs(); }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; generateTable(); saveToLocalStorage(); }
+
+        function openDataModal(target) {
+            currentDbManage = target;
+            document.getElementById('modalDbTitle').innerText = target === 'murid' ? 'DATABASE MURID' : 'DATABASE PEGAWAI';
+            renderDataInputs();
+            openModal('modalGuru');
+        }
+
+        function renderDataInputs() {
+            const header = document.getElementById('dataTableHeader');
+            const body = document.getElementById('dataTableBody');
+            const isMurid = currentDbManage === 'murid';
+            const data = isMurid ? studentData : staffData;
+
+            header.innerHTML = isMurid ? 
+                `<tr class="bg-gray-100 text-[11px] uppercase font-bold">
+                    <th class="p-2 border w-10 text-center">No</th><th>Nama Murid</th><th class="w-16">L/P</th><th class="w-28">Kelas</th><th class="w-24">Rombel</th><th class="w-16">Aksi</th>
+                </tr>` :
+                `<tr class="bg-gray-100 text-[11px] uppercase font-bold">
+                    <th class="p-2 border w-10 text-center">No</th><th>Nama Pegawai</th><th class="w-16">L/P</th><th>Jabatan</th><th class="w-40">Status Kepeg.</th><th class="w-16">Aksi</th>
+                </tr>`;
+
+            body.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="p-4 text-center italic">Database kosong.</td></tr>' : '';
+            data.forEach((item, index) => {
+                const row = document.createElement('tr');
+                if (isMurid) {
+                    let kHtml = `<select class="w-full bg-transparent p-1 text-xs" onchange="updateDbValue(${index}, 'kelas', this.value)"><option value="">-</option>`;
+                    kelasOptions.forEach(o => kHtml += `<option value="${o}" ${item.kelas === o ? 'selected' : ''}>${o}</option>`);
+                    kHtml += `</select>`;
+                    let rHtml = `<select class="w-full bg-transparent p-1 text-xs" onchange="updateDbValue(${index}, 'rombel', this.value)"><option value="">-</option>`;
+                    rombelOptions.forEach(o => rHtml += `<option value="${o}" ${item.rombel === o ? 'selected' : ''}>${o}</option>`);
+                    rHtml += `</select>`;
+                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index+1}</td>
+                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td>
+                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-center text-xs" value="${item.lp}" oninput="updateDbValue(${index}, 'lp', this.value)" maxlength="1"></td>
+                        <td class="p-1 border">${kHtml}</td><td class="p-1 border">${rHtml}</td>
+                        <td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                } else {
+                    const opts = ["PNS", "PPPK", "PPPK PW", "Honorer", "Lainnya"];
+                    let sHtml = `<select class="w-full bg-transparent p-1 text-xs" onchange="updateDbValue(${index}, 'status', this.value)"><option value="">-</option>`;
+                    opts.forEach(o => sHtml += `<option value="${o}" ${item.status === o ? 'selected' : ''}>${o}</option>`);
+                    sHtml += `</select>`;
+                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index + 1}</td>
+                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td>
+                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-center text-xs" value="${item.lp}" oninput="updateDbValue(${index}, 'lp', this.value)" maxlength="1"></td>
+                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.tugas}" oninput="updateDbValue(${index}, 'tugas', this.value)"></td>
+                        <td class="p-1 border">${sHtml}</td>
+                        <td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                }
+                body.appendChild(row);
+            });
+        }
+
+        function addDataRow() {
+            if(currentDbManage === 'murid') studentData.push({nama:"", lp:"", kelas:"", rombel:""});
+            else staffData.push({nama:"", lp:"", tugas:"", status:""});
+            renderDataInputs(); saveToLocalStorage();
+        }
+
+        function removeDataRow(index) {
+            if(currentDbManage === 'murid') studentData.splice(index, 1); else staffData.splice(index, 1);
+            renderDataInputs(); saveToLocalStorage();
+        }
+
+        function updateDbValue(idx, field, val) {
+            if(currentDbManage === 'murid') studentData[idx][field] = val; else staffData[idx][field] = val;
+            saveToLocalStorage();
+        }
+
+        function clearAllData() { if(confirm('Hapus semua data dalam database ini?')) { if(currentDbManage === 'murid') studentData = []; else staffData = []; renderDataInputs(); saveToLocalStorage(); } }
+
+        function handleInput() { saveToLocalStorage(); generateTable(); }
+
+        function generateTable() {
+            const bIdx = parseInt(document.getElementById('inputBulan').value);
+            const thn = parseInt(document.getElementById('inputTahun').value);
+            const sek = document.getElementById('inputSekolah').value || '[NAMA SEKOLAH]';
+            const days = new Date(thn, bIdx + 1, 0).getDate();
+            const bName = bNames[bIdx];
+            const isMurid = currentMode === 'murid';
+            const hols = [];
+            
+            holidayData.forEach(h => {
+                if(parseInt(h.month) === bIdx) {
+                    (h.date || "").split(',').forEach(p => {
+                        const r = p.split('-');
+                        if(r.length === 2) for(let i=parseInt(r[0]); i<=parseInt(r[1]); i++) hols.push({d: i, desc: h.desc});
+                        else if(p.trim()) hols.push({d: parseInt(p.trim()), desc: h.desc});
+                    });
+                }
+            });
+
+            document.getElementById('displayHeaderJudul').innerText = isMurid ? `DAFTAR HADIR MURID ${sek}` : `DAFTAR HADIR PEGAWAI ${sek}`;
+            let filteredData = [];
+            if(isMurid) {
+                const kls = document.getElementById('inputKelas').value || "";
+                const rmb = document.getElementById('inputRombel').value || "";
+                const rmbDisplay = (rmb === "Hanya Satu" || rmb === "") ? "" : "/" + rmb;
+                document.getElementById('displayPeriode').innerText = `KELAS ${kls || "..."}${rmbDisplay} BULAN ${bName.toUpperCase()} TAHUN ${thn}`;
+                filteredData = studentData.filter(s => (s.kelas === kls && s.rombel === rmb));
+                if (filteredData.length > 0) { filteredData.push({nama:"", lp:""}); filteredData.push({nama:"", lp:""}); } 
+                else { filteredData = Array(15).fill({nama:"", lp:""}); }
+
+                const unitWidth = 15.5; 
+                let colHtml = `<col style="width:25px"><col style="width:180px"><col style="width:25px">`;
+                for(let i=1; i<=days; i++) colHtml += `<col style="width:${unitWidth}px">`;
+                colHtml += `<col style="width:${unitWidth}px"><col style="width:${unitWidth}px"><col style="width:${unitWidth}px">`;
+                colHtml += `<col style="width:75px">`;
+                document.getElementById('tableColgroup').innerHTML = colHtml;
+
+                const header = document.getElementById('tableHeader');
+                header.innerHTML = `<tr class="bg-gray-50"><th rowspan="2">No</th><th rowspan="2">Nama Murid</th><th rowspan="2">L/P</th><th colspan="${days}">Tanggal</th><th colspan="3">Jumlah</th><th rowspan="2">Catatan</th></tr><tr id="dateRow" class="bg-gray-50"></tr>`;
+                const dateRow = document.getElementById('dateRow');
+                for (let i = 1; i <= days; i++) {
+                    const isSun = new Date(thn, bIdx, i).getDay() === 0;
+                    const hol = hols.find(h => i === h.d);
+                    dateRow.innerHTML += `<th class="${isSun ? 'sunday' : (hol ? 'holiday' : '')}" style="font-size: 7.5pt;">${i}</th>`;
+                }
+                dateRow.innerHTML += `<th style="width:${unitWidth}px">S</th><th style="width:${unitWidth}px">I</th><th style="width:${unitWidth}px">A</th>`;
+            } else {
+                document.getElementById('displayPeriode').innerText = `BULAN ${bName.toUpperCase()} TAHUN ${thn}`;
+                filteredData = staffData.length > 0 ? staffData : Array(15).fill({nama:"", lp:"", tugas:"", status:""});
+                const dateUnitWidth = 21;
+                let colHtml = `<col style="width:30px"><col style="width:165px"><col style="width:30px"><col style="width:125px"><col style="width:65px">`;
+                for(let i=1; i<=days; i++) colHtml += `<col style="width:${dateUnitWidth}px">`;
+                colHtml += `<col style="width:60px">`;
+                document.getElementById('tableColgroup').innerHTML = colHtml;
+                const header = document.getElementById('tableHeader');
+                header.innerHTML = `<tr class="bg-gray-50"><th rowspan="2">No.</th><th rowspan="2">Nama Pegawai</th><th rowspan="2">L/P</th><th rowspan="2">Tugas</th><th rowspan="2">Status Kepeg.</th><th colspan="${days}">Tanggal</th><th rowspan="2">Ket.</th></tr><tr id="dateRow" class="bg-gray-50"></tr>`;
+                const dateRow = document.getElementById('dateRow');
+                for (let i = 1; i <= days; i++) {
+                    const isSun = new Date(thn, bIdx, i).getDay() === 0;
+                    const hol = hols.find(h => i === h.d);
+                    dateRow.innerHTML += `<th class="${isSun ? 'sunday' : (hol ? 'holiday' : '')}">${i}</th>`;
+                }
+            }
+
+            const body = document.getElementById('tableBody');
+            body.innerHTML = "";
+            filteredData.forEach((item, r) => {
+                let row = `<tr><td>${r + 1}</td><td class="text-left px-2"><span class="shrink-to-fit">${item.nama}</span></td><td class="uppercase">${item.lp}</td>`;
+                if(!isMurid) row += `<td class="text-left px-1"><span class="shrink-to-fit">${item.tugas}</span></td><td class="text-center px-1 whitespace-nowrap">${item.status}</td>`;
+                for (let i = 1; i <= days; i++) {
+                    const isSun = new Date(thn, bIdx, i).getDay() === 0;
+                    const hol = hols.find(h => i === h.d);
+                    if (isSun && r === 0) row += `<td class="sunday" rowspan="${filteredData.length}"><div class="vertical-text-wrapper"><span class="vertical-text">LIBUR MINGGU</span></div></td>`;
+                    else if (hol && r === 0) row += `<td class="holiday" rowspan="${filteredData.length}"><div class="vertical-text-wrapper"><span class="vertical-text">${hol.desc}</span></div></td>`;
+                    else if (!isSun && !hol) row += `<td></td>`;
+                }
+                if(isMurid) row += `<td></td><td></td><td></td><td></td></tr>`; else row += `<td></td></tr>`;
+                body.innerHTML += row;
+            });
+
+            document.getElementById('labelRight').innerText = isMurid ? "Guru/ Wali Kelas," : "Kepala Sekolah,";
+            document.getElementById('displayNamaLeft').innerText = document.getElementById('inputKepsek').value || "";
+            document.getElementById('displayNIPLeft').innerText = document.getElementById('inputNIP').value || "";
+            document.getElementById('displayNamaRight').innerText = isMurid ? (document.getElementById('inputWali').value || "") : (document.getElementById('inputKepsek').value || "");
+            document.getElementById('displayNIPRight').innerText = isMurid ? (document.getElementById('inputNIPWali').value || "") : (document.getElementById('inputNIP').value || "");
+            const lokasi = document.getElementById('inputKota').value || "";
+            document.getElementById('displayTglTtd').innerText = `${lokasi}, ${days} ${bName} ${thn}`;
+            setTimeout(applyShrinkToFit, 50);
+        }
+
+        function applyShrinkToFit() {
+            const isMurid = currentMode === 'murid';
+            const maxFontSize = isMurid ? 8.5 : 10;
+            document.querySelectorAll('.shrink-to-fit').forEach(el => {
+                const parent = el.parentElement;
+                let size = maxFontSize;
+                el.style.fontSize = size + 'pt';
+                const maxW = parent.getBoundingClientRect().width - 5;
+                if (el.scrollWidth > maxW) {
+                    while (el.scrollWidth > maxW && size > 5) {
+                        size -= 0.1;
+                        el.style.fontSize = size + 'pt';
+                    }
+                }
+            });
+        }
+
+        function printWithShrink() { applyShrinkToFit(); window.print(); }
+
+        function saveToLocalStorage() {
+            const data = { 
+                mode: currentMode,
+                sekolah: document.getElementById('inputSekolah').value, 
+                bulan: document.getElementById('inputBulan').value, 
+                tahun: document.getElementById('inputTahun').value, 
+                kelas: document.getElementById('inputKelas').value,
+                rombel: document.getElementById('inputRombel').value,
+                kepsek: document.getElementById('inputKepsek').value, 
+                nip: document.getElementById('inputNIP').value, 
+                wali: document.getElementById('inputWali').value,
+                nipWali: document.getElementById('inputNIPWali').value,
+                kota: document.getElementById('inputKota').value, 
+                staffData, studentData, holidayData 
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        }
+
+        function loadFromLocalStorage() {
+            const savedString = localStorage.getItem(STORAGE_KEY);
+            const now = new Date();
+            if(savedString) {
+                try {
+                    const saved = JSON.parse(savedString);
+                    currentMode = saved.mode || 'pegawai';
+                    document.getElementById('inputSekolah').value = saved.sekolah || "SDN PERDANA 1";
+                    document.getElementById('inputBulan').value = saved.bulan !== undefined ? saved.bulan : now.getMonth();
+                    document.getElementById('inputTahun').value = saved.tahun || now.getFullYear();
+                    document.getElementById('inputKelas').value = saved.kelas || "";
+                    document.getElementById('inputRombel').value = saved.rombel || "";
+                    document.getElementById('inputKepsek').value = saved.kepsek || "Ujang Edi Brata, M.Pd.";
+                    document.getElementById('inputNIP').value = saved.nip || "198407182008011003";
+                    document.getElementById('inputWali').value = saved.wali || "";
+                    document.getElementById('inputNIPWali').value = saved.nipWali || "";
+                    document.getElementById('inputKota').value = saved.kota || "Perdana";
+                    staffData = saved.staffData || [];
+                    studentData = saved.studentData || [];
+                    holidayData = saved.holidayData || [];
+                } catch(e) { console.error("Gagal memuat data", e); }
+            } else {
+                document.getElementById('inputSekolah').value = "SDN PERDANA 1";
+                document.getElementById('inputBulan').value = now.getMonth();
+                document.getElementById('inputTahun').value = now.getFullYear();
+                document.getElementById('inputKepsek').value = "Ujang Edi Brata, M.Pd.";
+                document.getElementById('inputNIP').value = "198407182008011003";
+                document.getElementById('inputKota').value = "Perdana";
+            }
+            updateUIByMode();
+        }
+
+        function backupData() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            if (!data) return;
+            const sekolah = document.getElementById('inputSekolah').value || "Sekolah";
+            const ts = getTimestamp("backup");
+            const blob = new Blob([data], { type: 'application/json' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
+            a.download = `Backup DH ${sekolah} ${ts}.json`; 
+            a.click();
+        }
+
+        function restoreData(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { 
+                try {
+                    JSON.parse(e.target.result); // Validasi JSON
+                    localStorage.setItem(STORAGE_KEY, e.target.result); 
+                    location.reload(); 
+                } catch(err) { alert("File backup tidak valid!"); }
+            };
+            reader.readAsText(file);
+        }
+
+        function addHolidayRow(month='', date='', desc='') { 
+            const activeMonth = month !== '' ? month : document.getElementById('inputBulan').value;
+            holidayData.push({ month: activeMonth, date, desc }); 
+            renderHolidayInputs(); saveToLocalStorage(); 
+        }
+
+        function removeHolidayRow(index) { holidayData.splice(index, 1); renderHolidayInputs(); saveToLocalStorage(); }
+        function updateHolidayData(index, field, value) { holidayData[index][field] = value; saveToLocalStorage(); }
+
+        function renderHolidayInputs() {
+            const body = document.getElementById('holidayInputBody'); if(!body) return;
+            body.innerHTML = holidayData.length === 0 ? '<tr><td colspan="4" class="p-4 text-center italic">Belum ada hari libur.</td></tr>' : '';
+            holidayData.sort((a,b) => a.month - b.month || String(a.date).split(',')[0] - String(b.date).split(',')[0]);
+            holidayData.forEach((h, index) => {
+                const row = document.createElement('tr');
+                let mHtml = `<select class="w-full bg-transparent p-1 text-xs font-bold" onchange="updateHolidayData(${index}, 'month', this.value)">`;
+                bNames.forEach((name, i) => mHtml += `<option value="${i}" ${parseInt(h.month) === i ? 'selected' : ''}>${name}</option>`);
+                mHtml += `</select>`;
+                row.innerHTML = `<td class="p-1 border">${mHtml}</td>
+                    <td class="p-1 border"><input type="text" class="w-full p-1 text-center bg-transparent border-none text-xs font-bold" value="${h.date}" placeholder="1,2-5" oninput="updateHolidayData(${index}, 'date', this.value)"></td>
+                    <td class="p-1 border"><input type="text" class="w-full bg-transparent border-none text-xs font-bold" value="${h.desc}" placeholder="Keterangan Libur" oninput="updateHolidayData(${index}, 'desc', this.value)"></td>
+                    <td class="p-1 border text-center"><button onclick="removeHolidayRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                body.appendChild(row);
+            });
+        }
+
+        function exportHolidaysToExcel() {
+            const sekolah = document.getElementById('inputSekolah').value || "Sekolah";
+            const ts = getTimestamp("backup");
+            let wsData = [["Bulan", "Tanggal", "Keterangan"]];
+            holidayData.forEach(h => { wsData.push([bNames[h.month], h.date, h.desc]); });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Libur");
+            XLSX.writeFile(wb, `Ekspor Libur ${sekolah} ${ts}.xlsx`);
+        }
+
+        function importHolidaysExcel(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                const imported = rows.slice(1).map(r => {
+                    const mIdx = bNames.indexOf(r[0]);
+                    return { month: mIdx !== -1 ? mIdx : 0, date: String(r[1]||""), desc: r[2]||"" };
+                }).filter(x => x.date !== "");
+                holidayData = holidayData.concat(imported);
+                renderHolidayInputs(); saveToLocalStorage(); generateTable(); event.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        function exportToExcel() {
+            const isMurid = currentDbManage === 'murid';
+            const data = isMurid ? studentData : staffData;
+            const sekolah = document.getElementById('inputSekolah').value || "Sekolah";
+            const ts = getTimestamp("backup");
+            const label = isMurid ? "Murid" : "Pegawai";
+            let wsData = isMurid ? [["Nama Murid", "LP", "Kelas", "Rombel"]] : [["Nama Pegawai", "LP", "Jabatan", "Status Kepeg."]];
+            data.forEach(item => { wsData.push(isMurid ? [item.nama, item.lp, item.kelas, item.rombel] : [item.nama, item.lp, item.tugas, item.status]); });
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
+            XLSX.writeFile(wb, `Ekspor ${label} ${sekolah} ${ts}.xlsx`);
+        }
+
+        function importExcel(event) {
+            const file = event.target.files[0]; if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+                const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
+                const isMurid = currentDbManage === 'murid';
+                const imported = rows.slice(1).map(r => isMurid ? {nama: r[0]||"", lp: r[1]||"", kelas: r[2]||"", rombel: r[3]||""} : {nama: r[0]||"", lp: r[1]||"", tugas: r[2]||"", status: r[3]||""}).filter(x => x.nama !== "");
+                if(isMurid) studentData = studentData.concat(imported); else staffData = staffData.concat(imported);
+                renderDataInputs(); saveToLocalStorage(); generateTable(); event.target.value = '';
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        window.onload = () => { loadFromLocalStorage(); generateTable(); };
+        window.onbeforeprint = () => { applyShrinkToFit(); };
+    </script>
+</body>
+</html>
