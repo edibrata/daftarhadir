@@ -115,7 +115,7 @@
         .holiday { background-color: #f3f4f6 !important; }
         .sunday { background-color: #fee2e2 !important; }
 
-        .header-text h1 { font-size: 16pt; font-weight: bold; margin: 0; line-height: 1.2; text-transform: uppercase; }
+        .header-text h1 { font-size: 14pt; font-weight: bold; margin: 0; line-height: 1.2; text-transform: uppercase; }
         .header-text p { font-size: 12pt; font-weight: bold; margin: 0 0 12px 0; line-height: 1.2; text-transform: uppercase; }
 
         .vertical-text-wrapper {
@@ -242,6 +242,20 @@
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                 <span>Database Murid</span>
             </button>
+
+            <!-- PILIHAN TIPE MURID (KELAS/MAPEL) -->
+            <div id="menuSubModeMuridGroup" class="hidden menu-input-group flex-shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                <select id="inputSubModeMurid" class="menu-input-field w-24" onchange="handleInputWithSync()">
+                    <option value="kelas">G. Kelas</option>
+                    <option value="mapel">G. Mapel</option>
+                </select>
+            </div>
+
+            <!-- INPUT NAMA MAPEL -->
+            <div id="menuMapelGroup" class="hidden menu-input-group flex-shrink-0">
+                <input type="text" id="inputNamaMapel" class="menu-input-field w-24 border-b border-blue-200" placeholder="Nama Mapel" oninput="handleInputWithSync()">
+            </div>
 
             <div id="menuKelasGroup" class="hidden menu-input-group flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
@@ -486,7 +500,7 @@
         let holidayData = [];
         let currentMode = 'pegawai';
         let currentDbManage = 'pegawai';
-        const STORAGE_KEY = 'absensi_f4_vSUPREME_FINAL_V12_LOCKED_FIXED_V4_MASTER';
+        const STORAGE_KEY = 'absensi_f4_vSUPREME_FINAL_V12_LOCKED_FIXED_V4_MASTER_V_SUBMODE';
 
         const kelasOptions = ["I", "II", "III", "IV", "V", "VI"];
         const rombelOptions = ["Hanya Satu", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J"];
@@ -522,10 +536,15 @@
             document.getElementById('btnDbMurid').classList.toggle('hidden', !isMurid);
             document.getElementById('menuKelasGroup').classList.toggle('hidden', !isMurid);
             document.getElementById('menuRombelGroup').classList.toggle('hidden', !isMurid);
+            document.getElementById('menuSubModeMuridGroup').classList.toggle('hidden', !isMurid);
             document.getElementById('footerMurid').classList.toggle('hidden', !isMurid);
             document.getElementById('catatanPegawai').classList.toggle('hidden', isMurid);
             document.getElementById('signLeft').classList.toggle('hidden', !isMurid);
             document.getElementById('modalWaliGroup').classList.toggle('hidden', !isMurid);
+
+            // Tampilkan input Mapel hanya jika mode Murid & subMode Mapel
+            const isMapel = isMurid && document.getElementById('inputSubModeMurid').value === 'mapel';
+            document.getElementById('menuMapelGroup').classList.toggle('hidden', !isMapel);
         }
 
         function openModal(id) { document.getElementById(id).style.display = 'flex'; if(id === 'modalLibur') renderHolidayInputs(); }
@@ -689,25 +708,28 @@
             const topKepsek = listKepsek[0] || listPlt[0];
             if (topKepsek) foundKepsek = { nama: topKepsek.nama, nip: topKepsek.nip || "" };
             
-            // Only update if not currently being edited by user in the modal
             document.getElementById('inputKepsek').value = foundKepsek.nama;
             document.getElementById('inputNIP').value = foundKepsek.nip;
 
             if (currentMode === 'murid') {
+                const subMode = document.getElementById('inputSubModeMurid').value;
                 const selectedKelas = document.getElementById('inputKelas').value;
-                if (selectedKelas) {
+                const selectedMapel = (document.getElementById('inputNamaMapel').value || "").toLowerCase();
+
+                if (subMode === 'mapel' && selectedMapel) {
+                    // Cari Guru Mapel yang tugasnya mengandung kata Mapel tersebut
+                    let guruMapel = staffData.find(s => {
+                        const tugasStr = (s.tugas || "").toLowerCase();
+                        return tugasStr.includes("guru mapel") && tugasStr.includes(selectedMapel);
+                    });
+                    if (guruMapel) foundWali = { nama: guruMapel.nama, nip: guruMapel.nip || "" };
+                } else if (selectedKelas) {
+                    // Cari Wali Kelas
                     let wali = staffData.find(s => {
                         const p = s.jabatan.primary;
                         const sec = s.jabatan.secondary;
                         return (p.cat === 'Guru Kelas' && p.kls.includes(selectedKelas)) || (sec.active && sec.cat === 'Guru Kelas' && sec.kls.includes(selectedKelas));
                     });
-                    if (!wali) {
-                        wali = staffData.find(s => {
-                            const p = s.jabatan.primary;
-                            const sec = s.jabatan.secondary;
-                            return (p.cat === 'Guru Mapel' && p.kls.includes(selectedKelas)) || (sec.active && sec.cat === 'Guru Mapel' && sec.kls.includes(selectedKelas));
-                        });
-                    }
                     if (wali) foundWali = { nama: wali.nama, nip: wali.nip || "" };
                 }
             }
@@ -716,8 +738,7 @@
             generateTable();
         }
 
-        // Functions to handle input events without triggering an auto-overwrite
-        function handleInput() { saveToLocalStorage(); generateTable(); }
+        function handleInput() { saveToLocalStorage(); updateUIByMode(); generateTable(); }
         function handleInputWithSync() { syncPejabatData(); handleInput(); }
 
         function generateTable() {
@@ -727,6 +748,9 @@
             const days = new Date(thn, bIdx + 1, 0).getDate();
             const bName = bNames[bIdx];
             const isMurid = currentMode === 'murid';
+            const subMode = document.getElementById('inputSubModeMurid').value;
+            const namaMapel = (document.getElementById('inputNamaMapel').value || "").toUpperCase();
+
             const hols = [];
             holidayData.forEach(h => {
                 if(parseInt(h.month) === bIdx) {
@@ -737,7 +761,15 @@
                     });
                 }
             });
-            document.getElementById('displayHeaderJudul').innerText = isMurid ? `DAFTAR HADIR MURID ${sek}` : `DAFTAR HADIR PEGAWAI ${sek}`;
+
+            // Judul Header
+            if (isMurid) {
+                const prefix = subMode === 'mapel' && namaMapel ? `DAFTAR HADIR MURID MAPEL ${namaMapel}` : `DAFTAR HADIR MURID`;
+                document.getElementById('displayHeaderJudul').innerText = `${prefix} ${sek}`;
+            } else {
+                document.getElementById('displayHeaderJudul').innerText = `DAFTAR HADIR PEGAWAI ${sek}`;
+            }
+
             let filteredData = [];
             if(isMurid) {
                 const kls = document.getElementById('inputKelas').value || "";
@@ -806,7 +838,14 @@
                 if(isMurid) row += `<td></td><td></td><td></td><td></td></tr>`; else row += `<td></td></tr>`;
                 body.innerHTML += row;
             });
-            document.getElementById('labelRight').innerText = isMurid ? "Guru/ Wali Kelas," : "Kepala Sekolah,";
+
+            // Label Tanda Tangan
+            if (isMurid) {
+                document.getElementById('labelRight').innerText = subMode === 'mapel' ? "Guru Mata Pelajaran," : "Guru/ Wali Kelas,";
+            } else {
+                document.getElementById('labelRight').innerText = "Kepala Sekolah,";
+            }
+            
             document.getElementById('displayNamaLeft').innerText = document.getElementById('inputKepsek').value || "";
             document.getElementById('displayNIPLeft').innerText = document.getElementById('inputNIP').value || "";
             document.getElementById('displayNamaRight').innerText = isMurid ? (document.getElementById('inputWali').value || "") : (document.getElementById('inputKepsek').value || "");
@@ -843,6 +882,8 @@
                 kepsek: document.getElementById('inputKepsek').value, nip: document.getElementById('inputNIP').value, 
                 wali: document.getElementById('inputWali').value, nipWali: document.getElementById('inputNIPWali').value,
                 kota: document.getElementById('inputKota').value, tglManual: document.getElementById('inputTglManual').value,
+                subModeMurid: document.getElementById('inputSubModeMurid').value,
+                namaMapel: document.getElementById('inputNamaMapel').value,
                 staffData, studentData, holidayData 
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -866,6 +907,8 @@
                     document.getElementById('inputNIP').value = saved.nip || "";
                     document.getElementById('inputWali').value = saved.wali || "";
                     document.getElementById('inputNIPWali').value = saved.nipWali || "";
+                    document.getElementById('inputSubModeMurid').value = saved.subModeMurid || "kelas";
+                    document.getElementById('inputNamaMapel').value = saved.namaMapel || "";
                     staffData = saved.staffData || []; studentData = saved.studentData || []; holidayData = saved.holidayData || [];
                     staffData.forEach(item => { if (!item.jabatan) item.jabatan = parseJabatan(item.tugas); });
                 } catch(e) { console.error("Gagal memuat data", e); }
