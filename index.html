@@ -10,7 +10,7 @@
     <style>
         /* PENGATURAN DASAR & PENYELARASAN VISUAL (WEB & CETAK) */
         :root {
-            --row-height-pegawai: 26px;
+            --row-height-pegawai: 32px; 
             --row-height-murid: 20px;
             --font-main: 10pt;
             --font-main-murid: 9.5pt;
@@ -154,7 +154,7 @@
 
         .modal-content {
             background: white; border-radius: 24px;
-            width: 95%; max-width: 800px; max-height: 90vh; overflow: hidden;
+            width: 95%; max-width: 1100px; max-height: 90vh; overflow: hidden;
             font-family: 'Inter', sans-serif;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex; flex-direction: column;
@@ -245,7 +245,7 @@
 
             <div id="menuKelasGroup" class="hidden menu-input-group flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-                <select id="inputKelas" class="menu-input-field w-32" onchange="handleInput()">
+                <select id="inputKelas" class="menu-input-field w-32" onchange="handleInputWithSync()">
                     <option value="">--Pilih Kelas--</option>
                     <option value="I">I</option><option value="II">II</option>
                     <option value="III">III</option><option value="IV">IV</option>
@@ -255,7 +255,7 @@
 
             <div id="menuRombelGroup" class="hidden menu-input-group flex-shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-blue-500"><circle cx="12" cy="12" r="10"/><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/></svg>
-                <select id="inputRombel" class="menu-input-field w-28" onchange="handleInput()">
+                <select id="inputRombel" class="menu-input-field w-28" onchange="handleInputWithSync()">
                     <option value="">--Rombel--</option>
                     <option value="Hanya Satu">Hanya Satu</option>
                     <option value="A">A</option><option value="B">B</option>
@@ -275,7 +275,7 @@
                 </button>
                 <input type="file" id="restoreInput" class="hidden" accept=".json" onchange="restoreData(event)">
                 <button onclick="printWithShrink()" class="menu-pill-btn bg-gray-800 text-white hover:bg-black" title="Cetak F4">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1-2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg>
                 </button>
             </div>
         </div>
@@ -336,7 +336,7 @@
 
     <!-- MODAL DATABASE -->
     <div id="modalGuru" class="modal-overlay no-print" onclick="closeModal('modalGuru')">
-        <div class="modal-content !max-w-4xl" onclick="event.stopPropagation()">
+        <div class="modal-content" onclick="event.stopPropagation()">
             <div class="p-6 border-b bg-slate-50 flex flex-wrap justify-between items-center gap-4">
                 <h3 id="modalDbTitle" class="text-lg font-black text-slate-800 uppercase tracking-tight">DATABASE</h3>
                 <div class="flex flex-wrap gap-2">
@@ -361,9 +361,9 @@
         </div>
     </div>
 
-    <!-- MODAL SETTINGS (REDESIGNED) -->
+    <!-- MODAL SETTINGS -->
     <div id="modalSettings" class="modal-overlay no-print" onclick="closeModal('modalSettings')">
-        <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-content !max-w-4xl" onclick="event.stopPropagation()">
             <div class="p-6 bg-blue-600 text-white flex justify-between items-center">
                 <div>
                     <h3 class="text-xl font-black uppercase tracking-tight">Pengaturan Identitas</h3>
@@ -378,9 +378,9 @@
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
                             </div>
-                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Data Sekolah</span>
+                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Data Sekolah & Dokumen</span>
                         </div>
                         <div class="space-y-1">
                             <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Nama Satuan Pendidikan</label>
@@ -390,13 +390,18 @@
                             <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Kota/Lokasi TTD</label>
                             <input type="text" id="inputKota" class="modal-input-field" oninput="handleInput()" placeholder="Jakarta">
                         </div>
+                        <div class="space-y-1">
+                            <label class="block text-[10px] font-black text-blue-600 uppercase ml-1">Tanggal Dokumen (Teks Saja)</label>
+                            <input type="text" id="inputTglManual" class="modal-input-field !border-blue-200 focus:ring-blue-500" oninput="handleInput()" placeholder="Contoh: 31 Januari 2024">
+                            <p class="text-[9px] text-slate-400 mt-1 italic">* Lokasi akan ditambahkan otomatis dari isian "Kota/Lokasi TTD".</p>
+                        </div>
                     </div>
                     <div class="space-y-4">
                         <div class="flex items-center gap-2 mb-2">
                             <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                             </div>
-                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Kepala Sekolah</span>
+                            <span class="font-bold text-slate-800 uppercase text-sm tracking-wide">Kepala Sekolah (Auto/Editable)</span>
                         </div>
                         <div class="space-y-1">
                             <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">Nama Lengkap & Gelar</label>
@@ -406,6 +411,7 @@
                             <label class="block text-[10px] font-black text-slate-400 uppercase ml-1">NIP Kepala Sekolah</label>
                             <input type="text" id="inputNIP" class="modal-input-field" oninput="handleInput()" placeholder="NIP">
                         </div>
+                        <p class="text-[9px] text-slate-400 italic">Terisi otomatis dari DB Pegawai, namun tetap bisa diedit manual.</p>
                     </div>
                 </div>
                 <div id="modalWaliGroup" class="hidden p-6 bg-emerald-50 rounded-3xl border border-emerald-100 space-y-4">
@@ -413,16 +419,16 @@
                         <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="11" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
                         </div>
-                        <span class="font-bold text-emerald-800 uppercase text-sm tracking-wide">Guru / Wali Kelas</span>
+                        <span class="font-bold text-emerald-800 uppercase text-sm tracking-wide">Guru / Wali Kelas (Auto/Editable)</span>
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="space-y-1">
                             <label class="block text-[10px] font-black text-emerald-600/60 uppercase ml-1">Nama Guru/Wali Kelas</label>
-                            <input type="text" id="inputWali" class="modal-input-field !bg-white border-emerald-100 focus:ring-emerald-500" oninput="handleInput()" placeholder="Nama Guru">
+                            <input type="text" id="inputWali" class="modal-input-field !bg-white/50" oninput="handleInput()" placeholder="Nama Guru">
                         </div>
                         <div class="space-y-1">
                             <label class="block text-[10px] font-black text-emerald-600/60 uppercase ml-1">NIP Guru/Wali Kelas</label>
-                            <input type="text" id="inputNIPWali" class="modal-input-field !bg-white border-emerald-100 focus:ring-emerald-500" oninput="handleInput()" placeholder="NIP Guru">
+                            <input type="text" id="inputNIPWali" class="modal-input-field !bg-white/50" oninput="handleInput()" placeholder="NIP Guru">
                         </div>
                     </div>
                 </div>
@@ -464,12 +470,12 @@
                     <tbody id="holidayInputBody"></tbody>
                 </table>
                 <button onclick="addHolidayRow()" class="w-full py-3 bg-gray-50 border-2 border-dashed border-slate-300 rounded-2xl font-bold hover:bg-slate-100 transition-all text-slate-500 flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                     Tambah Baris Libur
                 </button>
             </div>
             <div class="p-6 bg-slate-50 border-t">
-                <button onclick="closeModal('modalLibur')" class="w-full py-3 bg-red-600 text-white rounded-2xl font-bold shadow-lg uppercase tracking-wider hover:bg-red-700 transition-all">Simpan Perubahan</button>
+                <button onclick="closeModal('modalLibur')" class="w-full py-3 bg-red-600 text-white rounded-2xl font-bold shadow-lg uppercase tracking-wider hover:bg-red-700 transition-all">Selesai</button>
             </div>
         </div>
     </div>
@@ -493,13 +499,15 @@
             const d = String(now.getDate()).padStart(2,'0');
             const hh = String(now.getHours()).padStart(2,'0');
             const mm = String(now.getMinutes()).padStart(2,'0');
-            if (format === "backup") return `${y}${m}${d} ${hh}.${mm}`;
+            const ss = String(now.getSeconds()).padStart(2,'0');
+            if (format === "backup") return `${y}${m}${d} ${hh}.${ss}`;
             return `${y}${m}${d}_${hh}${mm}`;
         }
 
         function setMode(mode) {
             currentMode = mode;
             updateUIByMode();
+            syncPejabatData(); // Re-sync when mode changes
             generateTable();
             saveToLocalStorage();
         }
@@ -517,8 +525,6 @@
             document.getElementById('footerMurid').classList.toggle('hidden', !isMurid);
             document.getElementById('catatanPegawai').classList.toggle('hidden', isMurid);
             document.getElementById('signLeft').classList.toggle('hidden', !isMurid);
-            
-            // Perbarui grup modal juga agar konsisten
             document.getElementById('modalWaliGroup').classList.toggle('hidden', !isMurid);
         }
 
@@ -532,20 +538,73 @@
             openModal('modalGuru');
         }
 
+        function formatKlsRange(klsArr) {
+            if (!klsArr || klsArr.length === 0) return "";
+            if (klsArr.length === 1) return klsArr[0];
+            const romanMap = { "I": 1, "II": 2, "III": 3, "IV": 4, "V": 5, "VI": 6 };
+            const sortedKls = [...klsArr].sort((a, b) => romanMap[a] - romanMap[b]);
+            const nums = sortedKls.map(k => romanMap[k]);
+            let isSequential = true;
+            for (let i = 0; i < nums.length - 1; i++) {
+                if (nums[i+1] !== nums[i] + 1) { isSequential = false; break; }
+            }
+            if (isSequential && nums.length > 2) return `${sortedKls[0]} s.d. ${sortedKls[sortedKls.length - 1]}`;
+            return sortedKls.join(', ');
+        }
+
+        function parseJabatan(jabatanStr) {
+            const initial = { primary: { cat: "Lainnya", sub: "", kls: [] }, secondary: { active: false, cat: "Lainnya", sub: "", kls: [] } };
+            if (!jabatanStr) return initial;
+            const separator = jabatanStr.includes('|') ? '|' : '&';
+            const parts = jabatanStr.split(separator).map(p => p.trim());
+            const parseSingle = (pStr) => {
+                let cat = "Lainnya", sub = "", kls = [];
+                if (pStr.includes("Plt. Kepsek")) cat = "Plt. Kepsek";
+                else if (pStr.includes("Kepsek")) cat = "Kepsek";
+                else if (pStr.includes("Guru Mapel")) cat = "Guru Mapel";
+                else if (pStr.includes("Guru Kelas")) cat = "Guru Kelas";
+                kelasOptions.forEach(k => {
+                    const reg = new RegExp(`\\b${k}\\b`);
+                    if (reg.test(pStr)) kls.push(k);
+                });
+                if (cat === "Guru Mapel") {
+                    let match = pStr.match(/Guru Mapel\s+([^(\s|]+)/); 
+                    if (match) sub = match[1].trim();
+                    sub = sub.replace(/Kelas.*$/, "").trim();
+                } else if (cat === "Lainnya") sub = pStr;
+                return { cat, sub, kls };
+            };
+            return { primary: parseSingle(parts[0]), secondary: { active: parts.length > 1, ...parseSingle(parts[1] || "") } };
+        }
+
+        function buildTugasString(jab) {
+            const build = (d) => {
+                if (!d.cat) return "";
+                if (d.cat === "Kepsek" || d.cat === "Plt. Kepsek") return d.cat;
+                const klsStr = formatKlsRange(d.kls);
+                if (d.cat === "Guru Mapel") {
+                    let s = `Guru Mapel ${d.sub}`;
+                    if (klsStr) s += ` Kelas ${klsStr}`;
+                    return s;
+                }
+                if (d.cat === "Guru Kelas") return klsStr ? `Guru Kelas ${klsStr}` : "Guru Kelas";
+                return d.sub || "Lainnya";
+            };
+            let final = build(jab.primary);
+            if (jab.secondary.active) final += " | " + build(jab.secondary);
+            return final;
+        }
+
         function renderDataInputs() {
             const header = document.getElementById('dataTableHeader');
             const body = document.getElementById('dataTableBody');
             const isMurid = currentDbManage === 'murid';
             const data = isMurid ? studentData : staffData;
-
-            header.innerHTML = isMurid ? 
-                `<tr class="bg-gray-100 text-[11px] uppercase font-bold">
-                    <th class="p-2 border w-10 text-center">No</th><th>Nama Murid</th><th class="w-16">L/P</th><th class="w-28">Kelas</th><th class="w-24">Rombel</th><th class="w-16">Aksi</th>
-                </tr>` :
-                `<tr class="bg-gray-100 text-[11px] uppercase font-bold">
-                    <th class="p-2 border w-10 text-center">No</th><th>Nama Pegawai</th><th class="w-16">L/P</th><th>Jabatan</th><th class="w-40">Status Kepeg.</th><th class="w-16">Aksi</th>
-                </tr>`;
-
+            if (isMurid) {
+                header.innerHTML = `<tr class="bg-gray-100 text-[11px] uppercase font-bold"><th class="p-2 border w-10 text-center">No</th><th>Nama Murid</th><th class="w-16">L/P</th><th class="w-28">Kelas</th><th class="w-24">Rombel</th><th class="w-16">Aksi</th></tr>`;
+            } else {
+                header.innerHTML = `<tr class="bg-gray-100 text-[11px] uppercase font-bold"><th class="p-2 border w-10 text-center">No</th><th>Nama Pegawai</th><th class="w-40">NIP</th><th>Jabatan & Penugasan (Utama + Tambahan)</th><th class="w-32">Status Kepeg.</th><th class="w-16">Aksi</th></tr>`;
+            }
             body.innerHTML = data.length === 0 ? '<tr><td colspan="6" class="p-4 text-center italic">Database kosong.</td></tr>' : '';
             data.forEach((item, index) => {
                 const row = document.createElement('tr');
@@ -556,30 +615,49 @@
                     let rHtml = `<select class="w-full bg-transparent p-1 text-xs" onchange="updateDbValue(${index}, 'rombel', this.value)"><option value="">-</option>`;
                     rombelOptions.forEach(o => rHtml += `<option value="${o}" ${item.rombel === o ? 'selected' : ''}>${o}</option>`);
                     rHtml += `</select>`;
-                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index+1}</td>
-                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td>
-                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-center text-xs" value="${item.lp}" oninput="updateDbValue(${index}, 'lp', this.value)" maxlength="1"></td>
-                        <td class="p-1 border">${kHtml}</td><td class="p-1 border">${rHtml}</td>
-                        <td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index+1}</td><td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td><td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-center text-xs" value="${item.lp}" oninput="updateDbValue(${index}, 'lp', this.value)" maxlength="1"></td><td class="p-1 border">${kHtml}</td><td class="p-1 border">${rHtml}</td><td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
                 } else {
-                    const opts = ["PNS", "PPPK", "PPPK PW", "Honorer", "Lainnya"];
+                    const statusOpts = ["PNS", "PPPK", "PPPK PW", "Honorer", "Lainnya"];
                     let sHtml = `<select class="w-full bg-transparent p-1 text-xs" onchange="updateDbValue(${index}, 'status', this.value)"><option value="">-</option>`;
-                    opts.forEach(o => sHtml += `<option value="${o}" ${item.status === o ? 'selected' : ''}>${o}</option>`);
+                    statusOpts.forEach(o => sHtml += `<option value="${o}" ${item.status === o ? 'selected' : ''}>${o}</option>`);
                     sHtml += `</select>`;
-                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index + 1}</td>
-                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td>
-                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-center text-xs" value="${item.lp}" oninput="updateDbValue(${index}, 'lp', this.value)" maxlength="1"></td>
-                        <td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.tugas}" oninput="updateDbValue(${index}, 'tugas', this.value)"></td>
-                        <td class="p-1 border">${sHtml}</td>
-                        <td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                    const jab = item.jabatan;
+                    const catOpts = ["Kepsek", "Plt. Kepsek", "Guru Kelas", "Guru Mapel", "Lainnya"];
+                    const buildPartUI = (type, dataPart) => {
+                        let catHtml = `<select class="w-full bg-white border border-slate-200 rounded p-1 text-[10px] font-bold mb-1" onchange="updateJabatanPart(${index}, '${type}', 'cat', this.value)">`;
+                        catOpts.forEach(o => catHtml += `<option value="${o}" ${dataPart.cat === o ? 'selected' : ''}>${o}</option>`);
+                        catHtml += `</select>`;
+                        let subHtml = (dataPart.cat === 'Guru Mapel' || dataPart.cat === 'Lainnya') ? `<input type="text" class="w-full border border-slate-200 rounded p-1 text-[10px] mb-1" placeholder="Nama Mapel/Jabatan..." value="${dataPart.sub}" onblur="updateJabatanPart(${index}, '${type}', 'sub', this.value)">` : '';
+                        let klsHtml = (dataPart.cat !== 'Kepsek' && dataPart.cat !== 'Plt. Kepsek' && dataPart.cat !== 'Lainnya') ? `<div class="flex flex-wrap gap-x-3 gap-y-1 items-center bg-white p-1 rounded border border-slate-100 mt-1">${kelasOptions.map(k => `<label class="flex items-center gap-1 cursor-pointer"><input type="checkbox" class="w-3 h-3" ${dataPart.kls.includes(k) ? 'checked' : ''} onchange="updateJabatanPart(${index}, '${type}', 'kls', '${k}', this.checked)"><span class="text-[10px] font-bold text-slate-600">${k}</span></label>`).join('')}</div>` : '';
+                        return `<div class="p-2 bg-slate-50 border border-slate-200 rounded-lg mb-2"><div class="text-[9px] font-black text-slate-400 uppercase mb-1">${type === 'primary' ? 'Peran Utama' : 'Tugas Tambahan'}</div>${catHtml}${subHtml}${klsHtml}</div>`;
+                    };
+                    row.innerHTML = `<td class="p-1 border text-center text-xs font-bold text-gray-400">${index + 1}</td><td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" value="${item.nama}" oninput="updateDbValue(${index}, 'nama', this.value)"></td><td class="p-1 border"><input type="text" class="w-full border-none bg-transparent text-xs" placeholder="NIP" value="${item.nip||''}" oninput="updateDbValue(${index}, 'nip', this.value)"></td><td class="p-1 border"><div class="flex flex-col text-left">${buildPartUI('primary', jab.primary)}<label class="flex items-center gap-2 cursor-pointer mb-2 ml-1"><input type="checkbox" class="w-4 h-4" ${jab.secondary.active ? 'checked' : ''} onchange="updateJabatanPart(${index}, 'secondary', 'active', '', this.checked)"><span class="text-[10px] font-black text-blue-600 uppercase">Memiliki Tugas Tambahan?</span></label>${jab.secondary.active ? buildPartUI('secondary', jab.secondary) : ''}</div></td><td class="p-1 border">${sHtml}</td><td class="p-1 border text-center"><button onclick="removeDataRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
                 }
                 body.appendChild(row);
             });
         }
 
+        function updateJabatanPart(idx, roleType, field, val, isChecked) {
+            let item = staffData[idx];
+            let jab = item.jabatan;
+            let target = (roleType === 'primary') ? jab.primary : jab.secondary;
+            if (field === 'active') jab.secondary.active = isChecked;
+            else if (field === 'cat') {
+                target.cat = val;
+                if (val === 'Kepsek' || val === 'Plt. Kepsek' || val === 'Lainnya') target.kls = [];
+                if (val !== 'Guru Mapel' && val !== 'Lainnya') target.sub = "";
+            } else if (field === 'sub') target.sub = val;
+            else if (field === 'kls') {
+                if (isChecked) { if(!target.kls.includes(val)) target.kls.push(val); }
+                else target.kls = target.kls.filter(k => k !== val);
+            }
+            item.tugas = buildTugasString(jab);
+            renderDataInputs(); saveToLocalStorage(); syncPejabatData();
+        }
+
         function addDataRow() {
             if(currentDbManage === 'murid') studentData.push({nama:"", lp:"", kelas:"", rombel:""});
-            else staffData.push({nama:"", lp:"", tugas:"", status:""});
+            else staffData.push({ nama:"", nip:"", status:"", tugas:"", jabatan: { primary: { cat: "Lainnya", sub: "", kls: [] }, secondary: { active: false, cat: "Lainnya", sub: "", kls: [] } } });
             renderDataInputs(); saveToLocalStorage();
         }
 
@@ -590,12 +668,57 @@
 
         function updateDbValue(idx, field, val) {
             if(currentDbManage === 'murid') studentData[idx][field] = val; else staffData[idx][field] = val;
-            saveToLocalStorage();
+            saveToLocalStorage(); syncPejabatData();
         }
 
         function clearAllData() { if(confirm('Hapus semua data dalam database ini?')) { if(currentDbManage === 'murid') studentData = []; else staffData = []; renderDataInputs(); saveToLocalStorage(); } }
 
+        function syncPejabatData() {
+            let foundKepsek = { nama: "", nip: "" };
+            let foundWali = { nama: "", nip: "" };
+            const listKepsek = staffData.filter(s => {
+                const p = s.jabatan.primary;
+                const sec = s.jabatan.secondary;
+                return (p.cat === 'Kepsek' || (sec.active && sec.cat === 'Kepsek'));
+            });
+            const listPlt = staffData.filter(s => {
+                const p = s.jabatan.primary;
+                const sec = s.jabatan.secondary;
+                return (p.cat === 'Plt. Kepsek' || (sec.active && sec.cat === 'Plt. Kepsek'));
+            });
+            const topKepsek = listKepsek[0] || listPlt[0];
+            if (topKepsek) foundKepsek = { nama: topKepsek.nama, nip: topKepsek.nip || "" };
+            
+            // Only update if not currently being edited by user in the modal
+            document.getElementById('inputKepsek').value = foundKepsek.nama;
+            document.getElementById('inputNIP').value = foundKepsek.nip;
+
+            if (currentMode === 'murid') {
+                const selectedKelas = document.getElementById('inputKelas').value;
+                if (selectedKelas) {
+                    let wali = staffData.find(s => {
+                        const p = s.jabatan.primary;
+                        const sec = s.jabatan.secondary;
+                        return (p.cat === 'Guru Kelas' && p.kls.includes(selectedKelas)) || (sec.active && sec.cat === 'Guru Kelas' && sec.kls.includes(selectedKelas));
+                    });
+                    if (!wali) {
+                        wali = staffData.find(s => {
+                            const p = s.jabatan.primary;
+                            const sec = s.jabatan.secondary;
+                            return (p.cat === 'Guru Mapel' && p.kls.includes(selectedKelas)) || (sec.active && sec.cat === 'Guru Mapel' && sec.kls.includes(selectedKelas));
+                        });
+                    }
+                    if (wali) foundWali = { nama: wali.nama, nip: wali.nip || "" };
+                }
+            }
+            document.getElementById('inputWali').value = foundWali.nama;
+            document.getElementById('inputNIPWali').value = foundWali.nip;
+            generateTable();
+        }
+
+        // Functions to handle input events without triggering an auto-overwrite
         function handleInput() { saveToLocalStorage(); generateTable(); }
+        function handleInputWithSync() { syncPejabatData(); handleInput(); }
 
         function generateTable() {
             const bIdx = parseInt(document.getElementById('inputBulan').value);
@@ -605,7 +728,6 @@
             const bName = bNames[bIdx];
             const isMurid = currentMode === 'murid';
             const hols = [];
-            
             holidayData.forEach(h => {
                 if(parseInt(h.month) === bIdx) {
                     (h.date || "").split(',').forEach(p => {
@@ -615,7 +737,6 @@
                     });
                 }
             });
-
             document.getElementById('displayHeaderJudul').innerText = isMurid ? `DAFTAR HADIR MURID ${sek}` : `DAFTAR HADIR PEGAWAI ${sek}`;
             let filteredData = [];
             if(isMurid) {
@@ -625,15 +746,12 @@
                 document.getElementById('displayPeriode').innerText = `KELAS ${kls || "..."}${rmbDisplay} BULAN ${bName.toUpperCase()} TAHUN ${thn}`;
                 filteredData = studentData.filter(s => (s.kelas === kls && s.rombel === rmb));
                 if (filteredData.length > 0) { filteredData.push({nama:"", lp:""}); filteredData.push({nama:"", lp:""}); } 
-                else { filteredData = Array(15).fill({nama:"", lp:""}); }
-
+                else filteredData = Array(15).fill({nama:"", lp:""});
                 const unitWidth = 15.5; 
                 let colHtml = `<col style="width:25px"><col style="width:180px"><col style="width:25px">`;
                 for(let i=1; i<=days; i++) colHtml += `<col style="width:${unitWidth}px">`;
-                colHtml += `<col style="width:${unitWidth}px"><col style="width:${unitWidth}px"><col style="width:${unitWidth}px">`;
-                colHtml += `<col style="width:75px">`;
+                colHtml += `<col style="width:${unitWidth}px"><col style="width:${unitWidth}px"><col style="width:${unitWidth}px"><col style="width:75px">`;
                 document.getElementById('tableColgroup').innerHTML = colHtml;
-
                 const header = document.getElementById('tableHeader');
                 header.innerHTML = `<tr class="bg-gray-50"><th rowspan="2">No</th><th rowspan="2">Nama Murid</th><th rowspan="2">L/P</th><th colspan="${days}">Tanggal</th><th colspan="3">Jumlah</th><th rowspan="2">Catatan</th></tr><tr id="dateRow" class="bg-gray-50"></tr>`;
                 const dateRow = document.getElementById('dateRow');
@@ -645,14 +763,15 @@
                 dateRow.innerHTML += `<th style="width:${unitWidth}px">S</th><th style="width:${unitWidth}px">I</th><th style="width:${unitWidth}px">A</th>`;
             } else {
                 document.getElementById('displayPeriode').innerText = `BULAN ${bName.toUpperCase()} TAHUN ${thn}`;
-                filteredData = staffData.length > 0 ? staffData : Array(15).fill({nama:"", lp:"", tugas:"", status:""});
-                const dateUnitWidth = 21;
-                let colHtml = `<col style="width:30px"><col style="width:165px"><col style="width:30px"><col style="width:125px"><col style="width:65px">`;
+                filteredData = staffData.length > 0 ? staffData : Array(15).fill({nama:"", tugas:"", status:""});
+                const extraPerDate = 5 / days;
+                const dateUnitWidth = 21 + extraPerDate;
+                let colHtml = `<col style="width:30px"><col style="width:195px"><col style="width:150px"><col style="width:65px">`;
                 for(let i=1; i<=days; i++) colHtml += `<col style="width:${dateUnitWidth}px">`;
                 colHtml += `<col style="width:60px">`;
                 document.getElementById('tableColgroup').innerHTML = colHtml;
                 const header = document.getElementById('tableHeader');
-                header.innerHTML = `<tr class="bg-gray-50"><th rowspan="2">No.</th><th rowspan="2">Nama Pegawai</th><th rowspan="2">L/P</th><th rowspan="2">Tugas</th><th rowspan="2">Status Kepeg.</th><th colspan="${days}">Tanggal</th><th rowspan="2">Ket.</th></tr><tr id="dateRow" class="bg-gray-50"></tr>`;
+                header.innerHTML = `<tr class="bg-gray-50"><th rowspan="2">No.</th><th rowspan="2">Nama Pegawai</th><th rowspan="2">Tugas</th><th rowspan="2">Status Kepeg.</th><th colspan="${days}">Tanggal</th><th rowspan="2">Ket.</th></tr><tr id="dateRow" class="bg-gray-50"></tr>`;
                 const dateRow = document.getElementById('dateRow');
                 for (let i = 1; i <= days; i++) {
                     const isSun = new Date(thn, bIdx, i).getDay() === 0;
@@ -660,12 +779,23 @@
                     dateRow.innerHTML += `<th class="${isSun ? 'sunday' : (hol ? 'holiday' : '')}">${i}</th>`;
                 }
             }
-
             const body = document.getElementById('tableBody');
             body.innerHTML = "";
             filteredData.forEach((item, r) => {
-                let row = `<tr><td>${r + 1}</td><td class="text-left px-2"><span class="shrink-to-fit">${item.nama}</span></td><td class="uppercase">${item.lp}</td>`;
-                if(!isMurid) row += `<td class="text-left px-1"><span class="shrink-to-fit">${item.tugas}</span></td><td class="text-center px-1 whitespace-nowrap">${item.status}</td>`;
+                let taskHtml = `<span class="shrink-to-fit">${item.tugas || ""}</span>`;
+                if (!isMurid && item.tugas) {
+                    let combinedTugas = item.tugas.replace(/\|/g, '&');
+                    if (combinedTugas.includes('&')) {
+                        const parts = combinedTugas.split('&').map(p => p.trim());
+                        if (parts.length > 1) { const lastPart = parts.pop(); combinedTugas = parts.join(', ') + ' dan ' + lastPart; }
+                    }
+                    taskHtml = `<div class="text-left leading-tight py-0.5 whitespace-normal break-words" style="font-size: var(--font-main);">${combinedTugas}</div>`;
+                }
+                const namePadding = !isMurid ? 'pl-3' : 'px-2';
+                const taskPadding = !isMurid ? 'pl-3' : 'px-1';
+                let row = `<tr><td>${r + 1}</td><td class="text-left ${namePadding}"><span class="shrink-to-fit">${item.nama}</span></td>`;
+                if(isMurid) row += `<td class="uppercase">${item.lp}</td>`;
+                if(!isMurid) row += `<td class="text-left ${taskPadding}">${taskHtml}</td><td class="text-center px-1 whitespace-nowrap">${item.status || ""}</td>`;
                 for (let i = 1; i <= days; i++) {
                     const isSun = new Date(thn, bIdx, i).getDay() === 0;
                     const hol = hols.find(h => i === h.d);
@@ -676,30 +806,29 @@
                 if(isMurid) row += `<td></td><td></td><td></td><td></td></tr>`; else row += `<td></td></tr>`;
                 body.innerHTML += row;
             });
-
             document.getElementById('labelRight').innerText = isMurid ? "Guru/ Wali Kelas," : "Kepala Sekolah,";
             document.getElementById('displayNamaLeft').innerText = document.getElementById('inputKepsek').value || "";
             document.getElementById('displayNIPLeft').innerText = document.getElementById('inputNIP').value || "";
             document.getElementById('displayNamaRight').innerText = isMurid ? (document.getElementById('inputWali').value || "") : (document.getElementById('inputKepsek').value || "");
             document.getElementById('displayNIPRight').innerText = isMurid ? (document.getElementById('inputNIPWali').value || "") : (document.getElementById('inputNIP').value || "");
+            
             const lokasi = document.getElementById('inputKota').value || "";
-            document.getElementById('displayTglTtd').innerText = `${lokasi}, ${days} ${bName} ${thn}`;
+            const tglManual = document.getElementById('inputTglManual').value;
+            const tglText = tglManual || `${days} ${bName} ${thn}`;
+            document.getElementById('displayTglTtd').innerText = lokasi ? `${lokasi}, ${tglText}` : tglText;
             setTimeout(applyShrinkToFit, 50);
         }
 
         function applyShrinkToFit() {
             const isMurid = currentMode === 'murid';
-            const maxFontSize = isMurid ? 8.5 : 10;
+            const maxFontSize = isMurid ? 8.5 : 10.5;
             document.querySelectorAll('.shrink-to-fit').forEach(el => {
                 const parent = el.parentElement;
                 let size = maxFontSize;
                 el.style.fontSize = size + 'pt';
-                const maxW = parent.getBoundingClientRect().width - 5;
+                const maxW = parent.getBoundingClientRect().width - 3;
                 if (el.scrollWidth > maxW) {
-                    while (el.scrollWidth > maxW && size > 5) {
-                        size -= 0.1;
-                        el.style.fontSize = size + 'pt';
-                    }
+                    while (el.scrollWidth > maxW && size > 5) { size -= 0.1; el.style.fontSize = size + 'pt'; }
                 }
             });
         }
@@ -708,17 +837,12 @@
 
         function saveToLocalStorage() {
             const data = { 
-                mode: currentMode,
-                sekolah: document.getElementById('inputSekolah').value, 
-                bulan: document.getElementById('inputBulan').value, 
-                tahun: document.getElementById('inputTahun').value, 
-                kelas: document.getElementById('inputKelas').value,
-                rombel: document.getElementById('inputRombel').value,
-                kepsek: document.getElementById('inputKepsek').value, 
-                nip: document.getElementById('inputNIP').value, 
-                wali: document.getElementById('inputWali').value,
-                nipWali: document.getElementById('inputNIPWali').value,
-                kota: document.getElementById('inputKota').value, 
+                mode: currentMode, sekolah: document.getElementById('inputSekolah').value, 
+                bulan: document.getElementById('inputBulan').value, tahun: document.getElementById('inputTahun').value, 
+                kelas: document.getElementById('inputKelas').value, rombel: document.getElementById('inputRombel').value,
+                kepsek: document.getElementById('inputKepsek').value, nip: document.getElementById('inputNIP').value, 
+                wali: document.getElementById('inputWali').value, nipWali: document.getElementById('inputNIPWali').value,
+                kota: document.getElementById('inputKota').value, tglManual: document.getElementById('inputTglManual').value,
                 staffData, studentData, holidayData 
             };
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -736,24 +860,24 @@
                     document.getElementById('inputTahun').value = saved.tahun || now.getFullYear();
                     document.getElementById('inputKelas').value = saved.kelas || "";
                     document.getElementById('inputRombel').value = saved.rombel || "";
-                    document.getElementById('inputKepsek').value = saved.kepsek || "Ujang Edi Brata, M.Pd.";
-                    document.getElementById('inputNIP').value = saved.nip || "198407182008011003";
+                    document.getElementById('inputKota').value = saved.kota || "Perdana";
+                    document.getElementById('inputTglManual').value = saved.tglManual || "";
+                    document.getElementById('inputKepsek').value = saved.kepsek || "";
+                    document.getElementById('inputNIP').value = saved.nip || "";
                     document.getElementById('inputWali').value = saved.wali || "";
                     document.getElementById('inputNIPWali').value = saved.nipWali || "";
-                    document.getElementById('inputKota').value = saved.kota || "Perdana";
-                    staffData = saved.staffData || [];
-                    studentData = saved.studentData || [];
-                    holidayData = saved.holidayData || [];
+                    staffData = saved.staffData || []; studentData = saved.studentData || []; holidayData = saved.holidayData || [];
+                    staffData.forEach(item => { if (!item.jabatan) item.jabatan = parseJabatan(item.tugas); });
                 } catch(e) { console.error("Gagal memuat data", e); }
             } else {
                 document.getElementById('inputSekolah').value = "SDN PERDANA 1";
                 document.getElementById('inputBulan').value = now.getMonth();
                 document.getElementById('inputTahun').value = now.getFullYear();
-                document.getElementById('inputKepsek').value = "Ujang Edi Brata, M.Pd.";
-                document.getElementById('inputNIP').value = "198407182008011003";
                 document.getElementById('inputKota').value = "Perdana";
             }
             updateUIByMode();
+            if (!savedString) syncPejabatData();
+            generateTable();
         }
 
         function backupData() {
@@ -762,9 +886,7 @@
             const sekolah = document.getElementById('inputSekolah').value || "Sekolah";
             const ts = getTimestamp("backup");
             const blob = new Blob([data], { type: 'application/json' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); 
-            a.download = `Backup DH ${sekolah} ${ts}.json`; 
-            a.click();
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `Backup DH ${sekolah} ${ts}.json`; a.click();
         }
 
         function restoreData(event) {
@@ -772,9 +894,9 @@
             const reader = new FileReader();
             reader.onload = (e) => { 
                 try {
-                    JSON.parse(e.target.result); // Validasi JSON
-                    localStorage.setItem(STORAGE_KEY, e.target.result); 
-                    location.reload(); 
+                    const data = JSON.parse(e.target.result);
+                    if (data.staffData) data.staffData.forEach(item => { if (!item.jabatan) item.jabatan = parseJabatan(item.tugas); });
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); location.reload(); 
                 } catch(err) { alert("File backup tidak valid!"); }
             };
             reader.readAsText(file);
@@ -782,8 +904,7 @@
 
         function addHolidayRow(month='', date='', desc='') { 
             const activeMonth = month !== '' ? month : document.getElementById('inputBulan').value;
-            holidayData.push({ month: activeMonth, date, desc }); 
-            renderHolidayInputs(); saveToLocalStorage(); 
+            holidayData.push({ month: activeMonth, date, desc }); renderHolidayInputs(); saveToLocalStorage(); 
         }
 
         function removeHolidayRow(index) { holidayData.splice(index, 1); renderHolidayInputs(); saveToLocalStorage(); }
@@ -798,10 +919,7 @@
                 let mHtml = `<select class="w-full bg-transparent p-1 text-xs font-bold" onchange="updateHolidayData(${index}, 'month', this.value)">`;
                 bNames.forEach((name, i) => mHtml += `<option value="${i}" ${parseInt(h.month) === i ? 'selected' : ''}>${name}</option>`);
                 mHtml += `</select>`;
-                row.innerHTML = `<td class="p-1 border">${mHtml}</td>
-                    <td class="p-1 border"><input type="text" class="w-full p-1 text-center bg-transparent border-none text-xs font-bold" value="${h.date}" placeholder="1,2-5" oninput="updateHolidayData(${index}, 'date', this.value)"></td>
-                    <td class="p-1 border"><input type="text" class="w-full bg-transparent border-none text-xs font-bold" value="${h.desc}" placeholder="Keterangan Libur" oninput="updateHolidayData(${index}, 'desc', this.value)"></td>
-                    <td class="p-1 border text-center"><button onclick="removeHolidayRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
+                row.innerHTML = `<td class="p-1 border">${mHtml}</td><td class="p-1 border"><input type="text" class="w-full p-1 text-center bg-transparent border-none text-xs font-bold" value="${h.date}" placeholder="1,2-5" oninput="updateHolidayData(${index}, 'date', this.value)"></td><td class="p-1 border"><input type="text" class="w-full bg-transparent border-none text-xs font-bold" value="${h.desc}" placeholder="Keterangan Libur" oninput="updateHolidayData(${index}, 'desc', this.value)"></td><td class="p-1 border text-center"><button onclick="removeHolidayRow(${index})" class="text-red-500 font-bold">✕</button></td>`;
                 body.appendChild(row);
             });
         }
@@ -838,8 +956,8 @@
             const sekolah = document.getElementById('inputSekolah').value || "Sekolah";
             const ts = getTimestamp("backup");
             const label = isMurid ? "Murid" : "Pegawai";
-            let wsData = isMurid ? [["Nama Murid", "LP", "Kelas", "Rombel"]] : [["Nama Pegawai", "LP", "Jabatan", "Status Kepeg."]];
-            data.forEach(item => { wsData.push(isMurid ? [item.nama, item.lp, item.kelas, item.rombel] : [item.nama, item.lp, item.tugas, item.status]); });
+            let wsData = isMurid ? [["Nama Murid", "LP", "Kelas", "Rombel"]] : [["Nama Pegawai", "Jabatan", "Status Kepeg."]];
+            data.forEach(item => wsData.push(isMurid ? [item.nama, item.lp, item.kelas, item.rombel] : [item.nama, item.tugas, item.status]));
             const ws = XLSX.utils.aoa_to_sheet(wsData);
             const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Data");
             XLSX.writeFile(wb, `Ekspor ${label} ${sekolah} ${ts}.xlsx`);
@@ -852,14 +970,19 @@
                 const workbook = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
                 const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]], {header: 1});
                 const isMurid = currentDbManage === 'murid';
-                const imported = rows.slice(1).map(r => isMurid ? {nama: r[0]||"", lp: r[1]||"", kelas: r[2]||"", rombel: r[3]||""} : {nama: r[0]||"", lp: r[1]||"", tugas: r[2]||"", status: r[3]||""}).filter(x => x.nama !== "");
+                const imported = rows.slice(1).map(r => {
+                    if (isMurid) return {nama: r[0]||"", lp: r[1]||"", kelas: r[2]||"", rombel: r[3]||""};
+                    const obj = {nama: r[0]||"", tugas: r[1]||"", status: r[2]||""};
+                    obj.jabatan = parseJabatan(obj.tugas);
+                    return obj;
+                }).filter(x => x.nama !== "");
                 if(isMurid) studentData = studentData.concat(imported); else staffData = staffData.concat(imported);
-                renderDataInputs(); saveToLocalStorage(); generateTable(); event.target.value = '';
+                renderDataInputs(); saveToLocalStorage(); syncPejabatData(); event.target.value = '';
             };
             reader.readAsArrayBuffer(file);
         }
 
-        window.onload = () => { loadFromLocalStorage(); generateTable(); };
+        window.onload = () => { loadFromLocalStorage(); };
         window.onbeforeprint = () => { applyShrinkToFit(); };
     </script>
 </body>
